@@ -287,12 +287,20 @@
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot, updateDoc, getDoc, collection, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Global State & Config
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'chess-app-v4-standard';
+        /** * ÖNEMLİ: Eğer bu dosyayı GitHub'a yüklediysen, __firebase_config hata verecektir.
+         * Lütfen Firebase Konsolu'ndan aldığın kendi yapılandırma objeni buraya yapıştır.
+         */
+        let firebaseConfig = {};
+        try {
+            firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        } catch (e) {
+            console.error("Firebase config not found. Please provide manually.");
+        }
+
+        const app = (firebaseConfig && firebaseConfig.apiKey) ? initializeApp(firebaseConfig) : null;
+        const auth = app ? getAuth(app) : null;
+        const db = app ? getFirestore(app) : null;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'chess-app-prod';
 
         let currentUserData = null;
         let currentRoomId = null;
@@ -320,6 +328,7 @@
         const promoteOptions = document.getElementById('promote-options');
 
         const initAuth = async () => {
+            if (!auth) return;
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                     await signInWithCustomToken(auth, __initial_auth_token);
@@ -329,38 +338,46 @@
             } catch (err) { console.error("Auth init error:", err); }
         };
 
-        initAuth();
+        if (auth) {
+            initAuth();
+            onAuthStateChanged(auth, async (user) => {
+                if (!user) return;
+                isAuthReady = true;
 
-        onAuthStateChanged(auth, async (user) => {
-            if (!user) return;
-            isAuthReady = true;
-
-            const forceLogout = localStorage.getItem('chess_force_logout');
-            if (forceLogout === 'true' && !isLocalMode) {
-                handleUIVisibility('login');
-                userBadge.textContent = "Sign In";
-                return;
-            }
-
-            try {
-                const userRef = doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'data');
-                const snap = await getDoc(userRef);
-                if (snap.exists()) {
-                    currentUserData = snap.data();
-                    if (!isLocalMode && !currentRoomId) handleUIVisibility('lobby');
-                    userBadge.textContent = currentUserData.username;
-                    listenToLobby();
-                } else {
-                    if (!isLocalMode) handleUIVisibility('login');
-                    userBadge.textContent = "Guest";
+                const forceLogout = localStorage.getItem('chess_force_logout');
+                if (forceLogout === 'true' && !isLocalMode) {
+                    handleUIVisibility('login');
+                    userBadge.textContent = "Sign In";
+                    return;
                 }
-            } catch (err) {
-                if (!isLocalMode) handleUIVisibility('login');
-            }
-        });
+
+                try {
+                    const userRef = doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'data');
+                    const snap = await getDoc(userRef);
+                    if (snap.exists()) {
+                        currentUserData = snap.data();
+                        if (!isLocalMode && !currentRoomId) handleUIVisibility('lobby');
+                        userBadge.textContent = currentUserData.username;
+                        listenToLobby();
+                    } else {
+                        if (!isLocalMode) handleUIVisibility('login');
+                        userBadge.textContent = "Guest";
+                    }
+                } catch (err) {
+                    if (!isLocalMode) handleUIVisibility('login');
+                }
+            });
+        } else {
+            // Eğer Firebase yoksa direkt Offline moduna teşvik et veya hata göster
+            console.warn("Firebase config is missing. Only local play available.");
+        }
 
         // Authentication Handlers
         window.handleAuth = async (mode) => {
+            if (!auth) {
+                alert("Online features unavailable. Firebase is not configured.");
+                return;
+            }
             const username = document.getElementById('username-input').value.trim();
             const password = document.getElementById('password-input').value.trim();
             const errEl = document.getElementById('auth-error');
@@ -428,7 +445,7 @@
 
         // Lobby Listeners
         function listenToLobby() {
-            if (!isAuthReady || !auth.currentUser) return;
+            if (!isAuthReady || !auth.currentUser || !db) return;
             if (lobbyUnsub) lobbyUnsub();
             const lobbyRef = collection(db, 'artifacts', appId, 'public', 'data', 'rooms');
             
@@ -464,6 +481,7 @@
 
         // Room Management
         window.createRoom = async () => {
+            if (!db) { alert("Firebase not configured."); return; }
             if (!currentUserData) {
                 showError(document.getElementById('room-error'), "Sign in first.");
                 return;
@@ -518,6 +536,7 @@
         window.closePassPrompt = () => document.getElementById('room-pass-overlay').classList.add('hidden');
 
         window.joinRoom = (rid) => {
+            if (!db) return;
             isLocalMode = false;
             currentRoomId = rid;
             const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', rid);
@@ -846,6 +865,7 @@
                 if(status === 'finished') showGameOver(winner, reason);
                 renderBoard();
             } else {
+                if (!db) return;
                 try {
                     await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'rooms', currentRoomId), {
                         board: JSON.stringify(nextBoard), 
