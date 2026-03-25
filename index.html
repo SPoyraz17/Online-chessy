@@ -11,7 +11,7 @@
             --bg-dark: #b58863;
             --selected: rgba(255, 255, 0, 0.5);
             --valid-move: rgba(0, 0, 0, 0.1);
-            --check-glow: rgba(255, 0, 0, 0.7);
+            --check-glow: rgba(239, 68, 68, 0.7);
             --capture-target: rgba(239, 68, 68, 0.4);
         }
 
@@ -62,8 +62,8 @@
         .square.in-check { background-color: var(--check-glow) !important; }
         
         .valid-dot {
-            width: 22%;
-            height: 22%;
+            width: 25%;
+            height: 25%;
             background: var(--valid-move);
             border-radius: 50%;
             pointer-events: none;
@@ -94,7 +94,7 @@
             user-select: none;
         }
 
-        .piece:hover { transform: scale(1.08); }
+        .piece:hover { transform: scale(1.15); }
 
         .overlay {
             position: absolute;
@@ -125,6 +125,7 @@
             border-radius: 12px;
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.1);
+            font-size: 32px;
         }
         .promote-option:hover {
             background: rgba(16, 185, 129, 0.2);
@@ -138,17 +139,17 @@
     <!-- Auth Overlay -->
     <div id="login-overlay" class="fixed inset-0 bg-slate-950/90 z-[300] flex items-center justify-center p-4">
         <div class="glass-panel p-8 rounded-2xl w-full max-w-md border-t-4 border-emerald-500">
-            <h2 class="text-3xl font-black mb-2 text-white">Chess World</h2>
-            <p class="text-slate-400 text-sm mb-8">Ready to make your move?</p>
+            <h2 class="text-3xl font-black mb-2 text-white text-center">Chess World</h2>
+            <p class="text-slate-400 text-sm mb-8 text-center">Ready to make your move?</p>
             
             <div class="space-y-5">
                 <div>
                     <label class="text-xs font-bold text-emerald-500 mb-1 block uppercase tracking-wider">Username</label>
-                    <input id="username-input" type="text" placeholder="ChessMaster77" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
+                    <input id="username-input" type="text" placeholder="ChessMaster77" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 outline-none focus:border-emerald-500 transition-all">
                 </div>
                 <div>
                     <label class="text-xs font-bold text-emerald-500 mb-1 block uppercase tracking-wider">Password</label>
-                    <input id="password-input" type="password" placeholder="••••••••" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all">
+                    <input id="password-input" type="password" placeholder="••••••••" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 outline-none focus:border-emerald-500 transition-all">
                 </div>
                 
                 <p id="auth-error" class="text-red-400 text-xs hidden text-center bg-red-900/20 py-3 rounded-lg border border-red-500/30 font-medium"></p>
@@ -160,7 +161,7 @@
                 
                 <div class="relative py-4">
                     <div class="absolute inset-0 flex items-center"><span class="w-full border-t border-slate-800"></span></div>
-                    <div class="relative flex justify-center text-[10px] uppercase font-bold tracking-widest text-slate-600"><span class="bg-transparent px-4">OR</span></div>
+                    <div class="relative flex justify-center text-[10px] uppercase font-bold tracking-widest text-slate-600"><span class="bg-slate-950 px-4">OR</span></div>
                 </div>
                 
                 <button onclick="startLocalPlay()" class="w-full bg-slate-800/40 hover:bg-slate-800 border border-slate-700 py-3 rounded-xl text-sm text-slate-400 hover:text-white transition-all font-bold">
@@ -175,7 +176,6 @@
         <div class="glass-panel p-8 rounded-2xl w-full max-w-sm border border-emerald-500/30 text-center">
             <h2 class="text-2xl font-black mb-2 text-emerald-400 uppercase tracking-tighter">Pawn Promotion</h2>
             <p class="text-slate-400 text-xs mb-8">Choose your upgrade</p>
-            
             <div id="promote-options" class="grid grid-cols-4 gap-4"></div>
         </div>
     </div>
@@ -190,8 +190,8 @@
             <input id="join-pass-input" type="password" placeholder="Room password" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 outline-none focus:border-amber-500 mb-4">
             <div id="join-pass-error" class="text-red-400 text-xs mb-4 hidden bg-red-900/20 p-2 rounded">Incorrect Password!</div>
             <div class="flex gap-2">
-                <button onclick="closePassPrompt()" class="flex-1 bg-slate-800 py-3 rounded-xl font-bold text-xs">CANCEL</button>
-                <button id="confirm-pass-btn" class="flex-1 bg-amber-600 py-3 rounded-xl font-bold text-xs">JOIN NOW</button>
+                <button onclick="closePassPrompt()" class="flex-1 bg-slate-800 py-3 rounded-xl font-bold text-xs uppercase">Cancel</button>
+                <button id="confirm-pass-btn" class="flex-1 bg-amber-600 py-3 rounded-xl font-bold text-xs uppercase">Join Now</button>
             </div>
         </div>
     </div>
@@ -287,14 +287,12 @@
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot, updateDoc, getDoc, collection, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        /** * ÖNEMLİ: Eğer bu dosyayı GitHub'a yüklediysen, __firebase_config hata verecektir.
-         * Lütfen Firebase Konsolu'ndan aldığın kendi yapılandırma objeni buraya yapıştır.
-         */
+        // Firebase Configuration
         let firebaseConfig = {};
         try {
             firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
         } catch (e) {
-            console.error("Firebase config not found. Please provide manually.");
+            console.error("Firebase config error");
         }
 
         const app = (firebaseConfig && firebaseConfig.apiKey) ? initializeApp(firebaseConfig) : null;
@@ -302,11 +300,18 @@
         const db = app ? getFirestore(app) : null;
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'chess-app-prod';
 
+        // State Management
         let currentUserData = null;
         let currentRoomId = null;
         let isLocalMode = false;
         let myRole = 'white'; 
-        let gameState = null;
+        let gameState = {
+            board: [],
+            turn: 'white',
+            status: 'playing',
+            winner: null,
+            reason: ''
+        };
         let selectedSquare = null;
         let validMoves = [];
         let roomUnsub = null;
@@ -327,6 +332,7 @@
         const promoteOverlay = document.getElementById('promote-overlay');
         const promoteOptions = document.getElementById('promote-options');
 
+        // Initializers
         const initAuth = async () => {
             if (!auth) return;
             try {
@@ -343,14 +349,11 @@
             onAuthStateChanged(auth, async (user) => {
                 if (!user) return;
                 isAuthReady = true;
-
                 const forceLogout = localStorage.getItem('chess_force_logout');
                 if (forceLogout === 'true' && !isLocalMode) {
                     handleUIVisibility('login');
-                    userBadge.textContent = "Sign In";
                     return;
                 }
-
                 try {
                     const userRef = doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'data');
                     const snap = await getDoc(userRef);
@@ -361,63 +364,33 @@
                         listenToLobby();
                     } else {
                         if (!isLocalMode) handleUIVisibility('login');
-                        userBadge.textContent = "Guest";
                     }
                 } catch (err) {
                     if (!isLocalMode) handleUIVisibility('login');
                 }
             });
-        } else {
-            // Eğer Firebase yoksa direkt Offline moduna teşvik et veya hata göster
-            console.warn("Firebase config is missing. Only local play available.");
         }
 
-        // Authentication Handlers
+        // --- Core Functions ---
+
         window.handleAuth = async (mode) => {
-            if (!auth) {
-                alert("Online features unavailable. Firebase is not configured.");
-                return;
-            }
+            if (!auth) { alert("Online features unavailable."); return; }
             const username = document.getElementById('username-input').value.trim();
             const password = document.getElementById('password-input').value.trim();
             const errEl = document.getElementById('auth-error');
             
-            if (username.length < 3 || password.length < 3) {
-                showError(errEl, "Please enter at least 3 characters.");
-                return;
-            }
-
-            const btn = mode === 'login' ? document.getElementById('login-btn') : document.getElementById('register-btn');
-            btn.disabled = true;
-            btn.textContent = "...";
+            if (username.length < 3) { showError(errEl, "Username too short."); return; }
 
             try {
-                if (!auth.currentUser) await initAuth();
                 const user = auth.currentUser;
                 const userRef = doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'data');
-                
-                const snap = await getDoc(userRef);
-                if (mode === 'login') {
-                    if (!snap.exists()) throw new Error("Account not found. Please register.");
-                    if (snap.data().password !== password) throw new Error("Incorrect password.");
-                } else if (mode === 'register') {
-                    if (snap.exists()) throw new Error("This user already exists.");
-                }
-
                 currentUserData = { username, password, uid: user.uid };
                 await setDoc(userRef, currentUserData);
-                
                 localStorage.removeItem('chess_force_logout');
                 handleUIVisibility('lobby');
                 userBadge.textContent = username;
                 listenToLobby();
-
-            } catch (e) {
-                showError(errEl, e.message);
-            } finally {
-                btn.disabled = false;
-                btn.textContent = mode === 'login' ? "Sign In" : "Sign Up";
-            }
+            } catch (e) { showError(errEl, e.message); }
         };
 
         window.logout = () => {
@@ -426,9 +399,7 @@
             if (roomUnsub) roomUnsub();
             currentUserData = null;
             currentRoomId = null;
-            isLocalMode = false;
             handleUIVisibility('login');
-            userBadge.textContent = "Sign In";
         };
 
         function handleUIVisibility(state) {
@@ -443,131 +414,87 @@
             setTimeout(() => el.classList.add('hidden'), 5000);
         }
 
-        // Lobby Listeners
+        // --- Lobby ---
+
         function listenToLobby() {
-            if (!isAuthReady || !auth.currentUser || !db) return;
-            if (lobbyUnsub) lobbyUnsub();
+            if (!db || lobbyUnsub) return;
             const lobbyRef = collection(db, 'artifacts', appId, 'public', 'data', 'rooms');
-            
             lobbyUnsub = onSnapshot(lobbyRef, (snapshot) => {
                 const container = document.getElementById('lobby-container');
                 container.innerHTML = '';
-                let rooms = [];
-                snapshot.forEach(d => rooms.push({id: d.id, ...d.data()}));
-                
-                if (rooms.length === 0) {
-                    container.innerHTML = '<div class="text-center py-4 text-slate-600 italic">No active rooms found</div>';
-                    return;
-                }
-
-                rooms.forEach(r => {
+                snapshot.forEach(d => {
+                    const r = d.data();
                     if (r.status === 'playing') {
                         const div = document.createElement('div');
-                        div.className = "bg-slate-900/50 p-3 rounded-xl flex justify-between items-center border border-slate-800 hover:border-emerald-500/30 transition-all";
+                        div.className = "bg-slate-900/50 p-3 rounded-xl flex justify-between items-center border border-slate-800";
                         div.innerHTML = `
                             <div>
-                                <div class="font-bold text-slate-100 flex items-center gap-1">
-                                    ${r.password ? '🔒' : '🔓'} ${r.name}
-                                </div>
-                                <div class="text-[8px] text-slate-500 uppercase mt-0.5">Host: ${r.whiteName}</div>
+                                <div class="font-bold text-slate-100">${r.password ? '🔒' : '🔓'} ${r.name}</div>
+                                <div class="text-[8px] text-slate-500 uppercase">Host: ${r.whiteName}</div>
                             </div>
-                            <button onclick="promptForRoom('${r.id}', ${!!r.password})" class="bg-emerald-600/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-lg text-[9px] font-black hover:bg-emerald-500 hover:text-white transition-all">JOIN</button>
+                            <button onclick="promptForRoom('${d.id}', ${!!r.password})" class="bg-emerald-600/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-lg text-[9px] font-black">JOIN</button>
                         `;
                         container.appendChild(div);
                     }
                 });
-            }, (err) => console.warn(err));
+                if (!container.innerHTML) container.innerHTML = '<div class="text-center py-4 text-slate-600 italic">No rooms</div>';
+            });
         }
 
-        // Room Management
+        // --- Room Management ---
+
         window.createRoom = async () => {
-            if (!db) { alert("Firebase not configured."); return; }
-            if (!currentUserData) {
-                showError(document.getElementById('room-error'), "Sign in first.");
-                return;
-            }
+            if (!currentUserData) return;
             const name = document.getElementById('room-name-input').value.trim() || 'Game';
             const pass = document.getElementById('room-pass-input').value.trim();
             const rid = "ROOM_" + Math.random().toString(36).substring(2, 9).toUpperCase();
-            
             const roomData = {
-                name,
-                password: pass || null,
+                name, password: pass || null,
                 board: JSON.stringify(createInitialBoard()),
-                turn: 'white',
-                status: 'playing',
-                whitePlayer: auth.currentUser.uid,
-                whiteName: currentUserData.username,
-                blackPlayer: null,
-                blackName: null,
-                createdAt: Date.now()
+                turn: 'white', status: 'playing',
+                whitePlayer: auth.currentUser.uid, whiteName: currentUserData.username,
+                blackPlayer: null, blackName: null
             };
-
-            try {
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'rooms', rid), roomData);
-                joinRoom(rid);
-            } catch (err) {
-                showError(document.getElementById('room-error'), "Failed to create room.");
-            }
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'rooms', rid), roomData);
+            joinRoom(rid);
         };
 
         window.promptForRoom = async (rid, hasPass) => {
             if (!hasPass) { joinRoom(rid); return; }
             const overlay = document.getElementById('room-pass-overlay');
-            const input = document.getElementById('join-pass-input');
-            const btn = document.getElementById('confirm-pass-btn');
-            const err = document.getElementById('join-pass-error');
-            
             overlay.classList.remove('hidden');
-            input.value = '';
-            err.classList.add('hidden');
-
-            btn.onclick = async () => {
+            document.getElementById('confirm-pass-btn').onclick = async () => {
                 const snap = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'rooms', rid));
-                if (snap.exists() && snap.data().password === input.value) {
+                if (snap.exists() && snap.data().password === document.getElementById('join-pass-input').value) {
                     overlay.classList.add('hidden');
                     joinRoom(rid);
-                } else {
-                    err.classList.remove('hidden');
-                }
+                } else document.getElementById('join-pass-error').classList.remove('hidden');
             };
         };
 
         window.closePassPrompt = () => document.getElementById('room-pass-overlay').classList.add('hidden');
 
         window.joinRoom = (rid) => {
-            if (!db) return;
-            isLocalMode = false;
             currentRoomId = rid;
-            const roomRef = doc(db, 'artifacts', appId, 'public', 'data', 'rooms', rid);
-            
+            isLocalMode = false;
             if (roomUnsub) roomUnsub();
-            roomUnsub = onSnapshot(roomRef, async (docSnap) => {
-                if (!docSnap.exists()) { leaveRoom(); return; }
-                const data = docSnap.data();
-                
-                if (data.whitePlayer === auth.currentUser?.uid) myRole = 'white';
-                else if (data.blackPlayer === auth.currentUser?.uid) myRole = 'black';
-                else if (!data.blackPlayer && currentUserData) {
-                    await updateDoc(roomRef, { 
-                        blackPlayer: auth.currentUser.uid, 
-                        blackName: currentUserData.username 
-                    });
+            roomUnsub = onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'rooms', rid), async (snap) => {
+                if (!snap.exists()) { leaveRoom(); return; }
+                const data = snap.data();
+                if (data.whitePlayer === auth.currentUser.uid) myRole = 'white';
+                else if (!data.blackPlayer) {
+                    await updateDoc(snap.ref, { blackPlayer: auth.currentUser.uid, blackName: currentUserData.username });
                     myRole = 'black';
-                } else {
-                    myRole = 'spectator';
-                }
+                } else myRole = data.blackPlayer === auth.currentUser.uid ? 'black' : 'spectator';
 
                 gameState = { ...data, board: JSON.parse(data.board) };
-                handleUIVisibility('game');
-                
+                renderBoard();
                 document.getElementById('waiting-overlay').classList.toggle('hidden', !!(data.whitePlayer && data.blackPlayer) || myRole === 'spectator');
                 document.getElementById('role-display').textContent = `Role: ${myRole.toUpperCase()}`;
                 document.getElementById('room-display-name').textContent = data.name;
                 document.getElementById('game-mode-name').textContent = 'ONLINE';
-                
+                handleUIVisibility('game');
                 if (gameState.status === 'finished') showGameOver(gameState.winner, gameState.reason);
-                renderBoard();
             });
         };
 
@@ -576,11 +503,11 @@
             currentRoomId = null;
             isLocalMode = false;
             document.getElementById('game-over-overlay').classList.add('hidden');
-            if (currentUserData) handleUIVisibility('lobby');
-            else handleUIVisibility('login');
+            handleUIVisibility('lobby');
         };
 
-        // Chess Engine Helper Functions
+        // --- Chess Engine ---
+
         function createInitialBoard() {
             const b = Array(8).fill(null).map(() => Array(8).fill(null));
             const p = ['r','n','b','q','k','b','n','r'];
@@ -593,102 +520,121 @@
 
         window.startLocalPlay = () => {
             isLocalMode = true;
-            currentRoomId = null;
-            gameState = {
-                board: createInitialBoard(),
-                turn: 'white',
-                status: 'playing',
-                name: 'Local Match'
-            };
-            myRole = 'white'; 
-            handleUIVisibility('game');
+            gameState = { board: createInitialBoard(), turn: 'white', status: 'playing' };
+            myRole = 'white';
             document.getElementById('game-mode-name').textContent = 'LOCAL';
-            document.getElementById('role-display').textContent = 'Both Sides';
-            document.getElementById('room-display-name').textContent = "Offline";
+            document.getElementById('role-display').textContent = 'BOTH SIDES';
             document.getElementById('waiting-overlay').classList.add('hidden');
             renderBoard();
+            handleUIVisibility('game');
         };
 
-        // Chess Logic
-        function isIn(r,c) { return r>=0 && r<8 && c>=0 && c<8; }
+        function renderBoard() {
+            boardElement.innerHTML = '';
+            const isCheckNow = isCheck(gameState.board, gameState.turn);
+            document.getElementById('check-status').classList.toggle('hidden', !isCheckNow);
+            document.getElementById('turn-indicator').textContent = `Turn: ${gameState.turn.toUpperCase()}`;
 
-        function findKing(board, color) {
-            for(let r=0; r<8; r++) {
-                for(let c=0; c<8; c++) {
-                    if(board[r][c] === `${color}-k`) return {r, c};
-                }
-            }
-            return null;
-        }
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    const square = document.createElement('div');
+                    square.className = `square ${(r + c) % 2 === 0 ? 'light' : 'dark'}`;
+                    
+                    const piece = gameState.board[r][c];
+                    if (piece) {
+                        const [color, type] = piece.split('-');
+                        const pEl = document.createElement('div');
+                        pEl.className = 'piece';
+                        pEl.textContent = pieceIcons[color][type];
+                        pEl.style.color = color === 'white' ? '#fff' : '#000';
+                        square.appendChild(pEl);
 
-        function isSquareAttacked(board, r, c, attackerColor) {
-            for(let i=0; i<8; i++) {
-                for(let j=0; j<8; j++) {
-                    const piece = board[i][j];
-                    if(piece && piece.startsWith(attackerColor)) {
-                        const moves = getPseudoLegalMoves(board, i, j, true);
-                        if(moves.some(m => m.r === r && m.c === c)) return true;
+                        if (type === 'k' && isCheckNow && color === gameState.turn) {
+                            square.classList.add('in-check');
+                        }
                     }
+
+                    if (selectedSquare && selectedSquare.r === r && selectedSquare.c === c) {
+                        square.classList.add('selected');
+                    }
+
+                    const move = validMoves.find(m => m.r === r && m.c === c);
+                    if (move) {
+                        if (gameState.board[r][c]) {
+                            const ring = document.createElement('div');
+                            ring.className = 'capture-ring';
+                            square.appendChild(ring);
+                        } else {
+                            const dot = document.createElement('div');
+                            dot.className = 'valid-dot';
+                            square.appendChild(dot);
+                        }
+                    }
+
+                    square.onclick = () => handleSquareClick(r, c);
+                    boardElement.appendChild(square);
                 }
             }
-            return false;
         }
 
-        function isCheck(board, color) {
-            const kingPos = findKing(board, color);
-            if(!kingPos) return false;
-            const enemyColor = color === 'white' ? 'black' : 'white';
-            return isSquareAttacked(board, kingPos.r, kingPos.c, enemyColor);
+        async function handleSquareClick(r, c) {
+            if (gameState.status !== 'playing' || myRole === 'spectator') return;
+            if (!isLocalMode && gameState.turn !== myRole) return;
+
+            const targetMove = validMoves.find(m => m.r === r && m.c === c);
+            if (targetMove) {
+                executeMove(selectedSquare.r, selectedSquare.c, r, c);
+                return;
+            }
+
+            const piece = gameState.board[r][c];
+            if (piece && piece.startsWith(gameState.turn)) {
+                selectedSquare = { r, c };
+                validMoves = getLegalMoves(gameState.board, r, c);
+            } else {
+                selectedSquare = null;
+                validMoves = [];
+            }
+            renderBoard();
         }
 
-        function getPseudoLegalMoves(board, r, c, ignoreCheck = false) {
+        function getPseudoLegalMoves(board, r, c) {
             const piece = board[r][c];
-            if(!piece) return [];
+            if (!piece) return [];
             const [color, type] = piece.split('-');
             const moves = [];
-            
-            const drs = {
-                'n': [[2,1],[2,-1],[-2,1],[-2,-1],[1,2],[1,-2],[-1,2],[-1,-2]],
-                'k': [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]],
+            const enemy = color === 'white' ? 'black' : 'white';
+
+            const directions = {
                 'r': [[1,0],[-1,0],[0,1],[0,-1]],
                 'b': [[1,1],[1,-1],[-1,1],[-1,-1]],
-                'q': [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]]
+                'q': [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]],
+                'n': [[2,1],[2,-1],[-2,1],[-2,-1],[1,2],[1,-2],[-1,2],[-1,-2]],
+                'k': [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]]
             };
 
-            if(type === 'p') {
+            if (type === 'p') {
                 const dir = color === 'white' ? -1 : 1;
-                if(!ignoreCheck) {
-                   if(isIn(r+dir, c) && !board[r+dir][c]) {
-                        moves.push({r:r+dir, c});
-                        if((color==='white' && r===6) || (color==='black' && r===1)) {
-                            if(!board[r+dir*2][c]) moves.push({r:r+dir*2, c});
-                        }
-                    }
+                if (isIn(r+dir, c) && !board[r+dir][c]) {
+                    moves.push({r: r+dir, c});
+                    if (((color==='white'&&r===6) || (color==='black'&&r===1)) && !board[r+dir*2][c]) 
+                        moves.push({r: r+dir*2, c});
                 }
                 [[dir, 1], [dir, -1]].forEach(([dr, dc]) => {
-                    if(isIn(r+dr, c+dc)) {
-                        const target = board[r+dr][c+dc];
-                        if(ignoreCheck) moves.push({r:r+dr, c:c+dc}); 
-                        else if(target && !target.startsWith(color)) moves.push({r:r+dr, c:c+dc});
-                    }
+                    if (isIn(r+dr, c+dc) && board[r+dr][c+dc]?.startsWith(enemy)) 
+                        moves.push({r: r+dr, c: c+dc});
                 });
-            } else if (drs[type]) {
-                drs[type].forEach(([dr, dc]) => {
-                    let nr = r + dr, nc = c + dc;
-                    if(type === 'n' || type === 'k') {
-                        if(isIn(nr, nc)) {
-                            const target = board[nr][nc];
-                            if(!target || !target.startsWith(color)) moves.push({r:nr, c:nc});
-                        }
-                    } else {
-                        while(isIn(nr, nc)) {
-                            const target = board[nr][nc];
-                            if(!target) moves.push({r:nr, c:nc});
-                            else {
-                                if(!target.startsWith(color)) moves.push({r:nr, c:nc});
-                                break;
-                            }
-                            nr += dr; nc += dc;
+            } else if (directions[type]) {
+                const limit = (type==='n' || type==='k') ? 1 : 8;
+                directions[type].forEach(([dr, dc]) => {
+                    for(let i=1; i<=limit; i++) {
+                        const nr = r+dr*i, nc = c+dc*i;
+                        if (!isIn(nr, nc)) break;
+                        const target = board[nr][nc];
+                        if (!target) moves.push({r: nr, c: nc});
+                        else {
+                            if (target.startsWith(enemy)) moves.push({r: nr, c: nc});
+                            break;
                         }
                     }
                 });
@@ -696,200 +642,108 @@
             return moves;
         }
 
-        function filterLegalMoves(board, r, c) {
-            const piece = board[r][c];
-            if(!piece) return [];
-            const [color] = piece.split('-');
-            const pseudo = getPseudoLegalMoves(board, r, c);
-            
-            return pseudo.filter(m => {
-                const tempBoard = JSON.parse(JSON.stringify(board));
-                tempBoard[m.r][m.c] = tempBoard[r][c];
-                tempBoard[r][c] = null;
-                return !isCheck(tempBoard, color);
+        function isIn(r, c) { return r >= 0 && r < 8 && c >= 0 && c < 8; }
+
+        function getLegalMoves(board, r, c) {
+            const color = board[r][c].split('-')[0];
+            return getPseudoLegalMoves(board, r, c).filter(m => {
+                const nextBoard = board.map(row => [...row]);
+                nextBoard[m.r][m.c] = nextBoard[r][c];
+                nextBoard[r][c] = null;
+                return !isCheck(nextBoard, color);
             });
         }
 
-        function hasAnyLegalMove(board, color) {
-            for(let r=0; r<8; r++) {
-                for(let c=0; c<8; c++) {
-                    const piece = board[r][c];
-                    if(piece && piece.startsWith(color)) {
-                        if(filterLegalMoves(board, r, c).length > 0) return true;
+        function isCheck(board, color) {
+            let kr, kc;
+            for(let i=0;i<8;i++) for(let j=0;j<8;j++) if(board[i][j]===`${color}-k`){kr=i;kc=j;}
+            const enemy = color === 'white' ? 'black' : 'white';
+            for(let i=0;i<8;i++) {
+                for(let j=0;j<8;j++) {
+                    if(board[i][j]?.startsWith(enemy)) {
+                        if(getPseudoLegalMoves(board, i, j).some(m => m.r===kr && m.c===kc)) return true;
                     }
                 }
             }
             return false;
         }
 
-        // Render Functions
-        function renderBoard() {
-            if (!gameState) return;
-            boardElement.innerHTML = '';
+        async function executeMove(fromR, fromC, toR, toC) {
+            const piece = gameState.board[fromR][fromC];
+            const [color, type] = piece.split('-');
             
-            const check = isCheck(gameState.board, gameState.turn);
-            const kingPos = check ? findKing(gameState.board, gameState.turn) : null;
-            document.getElementById('check-status').classList.toggle('hidden', !check);
-
-            for (let r = 0; r < 8; r++) {
-                for (let c = 0; c < 8; c++) {
-                    const vR = (myRole === 'black') ? 7-r : r;
-                    const vC = (myRole === 'black') ? 7-c : c;
-                    
-                    const sq = document.createElement('div');
-                    sq.className = `square ${(vR+vC)%2===0?'light':'dark'}`;
-                    
-                    if(selectedSquare && selectedSquare.r===vR && selectedSquare.c===vC) sq.classList.add('selected');
-                    if(kingPos && kingPos.r === vR && kingPos.c === vC) sq.classList.add('in-check');
-                    
-                    const p = gameState.board[vR][vC];
-                    
-                    const isMoveValid = validMoves.find(m => m.r === vR && m.c === vC);
-                    if(isMoveValid) {
-                        if(p && !p.startsWith(gameState.turn)) {
-                            const ring = document.createElement('div');
-                            ring.className = 'capture-ring';
-                            sq.appendChild(ring);
-                        } else {
-                            const dot = document.createElement('div');
-                            dot.className = 'valid-dot';
-                            sq.appendChild(dot);
-                        }
-                    }
-
-                    if(p) {
-                        const span = document.createElement('span');
-                        span.className = 'piece';
-                        const [color, type] = p.split('-');
-                        span.textContent = pieceIcons[color][type];
-                        span.style.color = color === 'white' ? '#fff' : '#1e293b';
-                        sq.appendChild(span);
-                    }
-                    
-                    sq.onclick = () => handleSquareClick(vR, vC);
-                    boardElement.appendChild(sq);
-                }
+            // Pawn Promotion Check
+            if (type === 'p' && (toR === 0 || toR === 7)) {
+                showPromotion(color, (chosenType) => {
+                    finalizeMove(fromR, fromC, toR, toC, `${color}-${chosenType}`);
+                });
+                return;
             }
-            document.getElementById('turn-indicator').textContent = `Turn: ${gameState.turn.toUpperCase()}`;
-            document.getElementById('turn-indicator').className = `px-3 py-1.5 rounded-xl text-[10px] font-black border uppercase ${gameState.turn === 'white' ? 'bg-white/10 text-white border-white/20' : 'bg-slate-900 text-slate-400 border-slate-700'}`;
+            finalizeMove(fromR, fromC, toR, toC, piece);
         }
 
-        function handleSquareClick(r, c) {
-            if (gameState.status !== 'playing' || promoteOverlay.offsetParent !== null) return;
-            if (!isLocalMode) {
-                if (myRole === 'spectator') return;
-                if (gameState.turn !== myRole) return;
+        async function finalizeMove(fromR, fromC, toR, toC, newPiece) {
+            gameState.board[toR][toC] = newPiece;
+            gameState.board[fromR][fromC] = null;
+            gameState.turn = gameState.turn === 'white' ? 'black' : 'white';
+            selectedSquare = null;
+            validMoves = [];
+
+            // Check Mate Check
+            if (isCheckMate(gameState.board, gameState.turn)) {
+                gameState.status = 'finished';
+                gameState.winner = gameState.turn === 'white' ? 'Black' : 'White';
+                gameState.reason = 'Checkmate';
             }
 
-            const piece = gameState.board[r][c];
-            if (selectedSquare) {
-                const move = validMoves.find(m => m.r === r && m.c === c);
-                if (move) { 
-                    executeMove(selectedSquare.r, selectedSquare.c, r, c); 
-                    return; 
-                }
-            }
-            
-            if (piece && piece.startsWith(gameState.turn)) {
-                selectedSquare = {r, c};
-                validMoves = filterLegalMoves(gameState.board, r, c);
+            if (isLocalMode) {
+                renderBoard();
+                if (gameState.status === 'finished') showGameOver(gameState.winner, gameState.reason);
             } else {
-                selectedSquare = null; 
-                validMoves = [];
+                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'rooms', currentRoomId), {
+                    board: JSON.stringify(gameState.board),
+                    turn: gameState.turn,
+                    status: gameState.status,
+                    winner: gameState.winner,
+                    reason: gameState.reason
+                });
             }
-            renderBoard();
         }
 
-        // Promotion Logic
-        function showPromotePanel(color, callback) {
+        function isCheckMate(board, color) {
+            if (!isCheck(board, color)) return false;
+            for(let i=0;i<8;i++) {
+                for(let j=0;j<8;j++) {
+                    if (board[i][j]?.startsWith(color)) {
+                        if (getLegalMoves(board, i, j).length > 0) return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        function showPromotion(color, callback) {
             promoteOverlay.classList.remove('hidden');
             promoteOptions.innerHTML = '';
-            const types = ['q', 'r', 'b', 'n']; 
-            
-            types.forEach(type => {
+            ['q', 'r', 'b', 'n'].forEach(t => {
                 const opt = document.createElement('div');
-                opt.className = 'promote-option text-4xl flex items-center justify-center';
-                opt.textContent = pieceIcons[color][type];
-                opt.style.color = color === 'white' ? '#fff' : '#1e293b';
+                opt.className = 'promote-option';
+                opt.textContent = pieceIcons[color][t];
                 opt.onclick = () => {
                     promoteOverlay.classList.add('hidden');
-                    callback(type);
+                    callback(t);
                 };
                 promoteOptions.appendChild(opt);
             });
         }
 
-        async function executeMove(fR, fC, tR, tC) {
-            const movingPieceOriginal = gameState.board[fR][fC];
-            const [color, type] = movingPieceOriginal.split('-');
-            
-            if (type === 'p' && ((color === 'white' && tR === 0) || (color === 'black' && tR === 7))) {
-                showPromotePanel(color, (choice) => {
-                    finalizeMove(fR, fC, tR, tC, `${color}-${choice}`);
-                });
-            } else {
-                finalizeMove(fR, fC, tR, tC, movingPieceOriginal);
-            }
+        function showGameOver(winner, reason) {
+            const overlay = document.getElementById('game-over-overlay');
+            document.getElementById('game-over-winner').textContent = `${winner.toUpperCase()} WINS!`;
+            document.getElementById('game-over-reason').textContent = reason;
+            overlay.classList.remove('hidden');
         }
 
-        async function finalizeMove(fR, fC, tR, tC, newPieceString) {
-            const nextBoard = JSON.parse(JSON.stringify(gameState.board));
-            nextBoard[tR][tC] = newPieceString;
-            nextBoard[fR][fC] = null;
-            const nextTurn = gameState.turn === 'white' ? 'black' : 'white';
-            
-            let status = 'playing';
-            let winner = null;
-            let reason = '';
-
-            if(!hasAnyLegalMove(nextBoard, nextTurn)) {
-                status = 'finished';
-                if(isCheck(nextBoard, nextTurn)) {
-                    winner = gameState.turn;
-                    reason = 'Checkmate!';
-                } else {
-                    winner = 'draw';
-                    reason = 'Stalemate';
-                }
-            }
-            
-            selectedSquare = null; 
-            validMoves = [];
-            
-            if(isLocalMode) {
-                gameState.board = nextBoard; 
-                gameState.turn = nextTurn; 
-                gameState.status = status;
-                gameState.winner = winner;
-                gameState.reason = reason;
-                if(status === 'finished') showGameOver(winner, reason);
-                renderBoard();
-            } else {
-                if (!db) return;
-                try {
-                    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'rooms', currentRoomId), {
-                        board: JSON.stringify(nextBoard), 
-                        turn: nextTurn,
-                        status: status,
-                        winner: winner,
-                        reason: reason
-                    });
-                } catch (err) { console.error(err); }
-            }
-        }
-
-        function showGameOver(w, r) {
-            document.getElementById('game-over-overlay').classList.remove('hidden');
-            const winnerEl = document.getElementById('game-over-winner');
-            if(w === 'draw') {
-                winnerEl.textContent = 'DRAW';
-                winnerEl.className = "text-3xl font-black mb-1 text-slate-400 uppercase";
-            } else {
-                winnerEl.textContent = (w === 'white' ? 'WHITE' : 'BLACK') + " WINS";
-                winnerEl.className = "text-3xl font-black mb-1 text-emerald-400 uppercase";
-            }
-            document.getElementById('game-over-reason').textContent = r;
-        }
     </script>
 </body>
 </html>
